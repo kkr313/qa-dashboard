@@ -361,7 +361,7 @@ const Automation = () => {
               </div>
               <div
                 className="flex align-items-center justify-content-center bg-blue-100 border-round"
-                style={{ width: "2.5rem", height: "2.5rem" }}
+                style={{ width: "3rem", height: "3rem" }}
               >
                 <i
                   className={`pi ${masterData[1].icon} text-blue-500 text-xl`}
@@ -383,7 +383,7 @@ const Automation = () => {
               </div>
               <div
                 className="flex align-items-center justify-content-center bg-blue-100 border-round"
-                style={{ width: "2.5rem", height: "2.5rem" }}
+                style={{ width: "3rem", height: "3rem" }}
               >
                 <i
                   className={`pi ${masterData[2].icon} text-blue-500 text-xl`}
