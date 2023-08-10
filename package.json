@@ -93,7 +93,7 @@
     "flatted": "^3.2.7",
     "get-intrinsic": "^1.2.0",
     "functions-have-names": "^1.2.3",
-    "fsevents": "^2.3.2",
+
     "glob": "^7.1.7",
     "glob-parent": "^6.0.2",
     "get-tsconfig": "^4.5.0",
@@ -278,7 +278,11 @@
   },
   "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",             
+    "build": "next build",        
+    "start": "next start",       
+    "lint": "eslint .",           
+    "test": "jest"                
   },
   "author": "",
   "license": "ISC"
