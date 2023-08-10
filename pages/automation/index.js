@@ -21,6 +21,7 @@ const Automation = () => {
   const [reportData, setReportData] = useState([]);
   const [options, setOptions] = useState({});
   const [data, setChartData] = useState({});
+  const reversedReportData = [...reportData].reverse();
   const [dropdownValue, setDropdownValue] = useState('');
   const [filters, setFilters] = useState(null);
   const [expandedRows, setExpandedRows] = useState(null);
