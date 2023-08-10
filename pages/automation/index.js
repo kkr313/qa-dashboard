@@ -22,8 +22,8 @@ const Automation = () => {
   const [options, setOptions] = useState({});
   const [data, setChartData] = useState({});
   const reversedReportData = [...reportData].reverse();
-  const initialDropdownValue = reversedReportData.length > 0 ? reversedReportData[0].testName : "";
-  const [dropdownValue, setDropdownValue] = useState(initialDropdownValue);
+ 
+  const [dropdownValue, setDropdownValue] = useState('');
   const [filters, setFilters] = useState(null);
   const [expandedRows, setExpandedRows] = useState(null);
   const [allExpanded, setAllExpanded] = useState(false);
@@ -49,6 +49,9 @@ const Automation = () => {
     AutomationService.getAutomationResult()
       .then((data) => {
         setReportData(data);
+        const reversedReportData = [...data].reverse();
+        const initialDropdownValue = reversedReportData.length > 0 ? reversedReportData[0].testName : "";
+        setDropdownValue(initialDropdownValue)
 
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue("--text-color");
