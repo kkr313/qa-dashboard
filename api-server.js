@@ -5,7 +5,7 @@ const path = require("path");
 
 const app = express();
 // const PORT = 3000;
-const PORT = 'https://qadash.netlify.app';
+const PORT = 443;
 
 app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
