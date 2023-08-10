@@ -1,0 +1,208 @@
+{
+  "data": [
+    {
+      "id": "1",
+      "suites": 4,
+      "tests": 10,
+      "passes": 7,
+      "pending": 2,
+      "failures": 1,
+      "skipped": 0,
+      "passPercent": 80,
+      "pendingPercent": 20,
+      "fileName": "cypress/integration/examples/basics_tags.spec1.js",
+      "results": [
+        {
+          "title": "should perform task A",
+          "fullTitle": "direct_booking should perform task A",
+          "state": "passed"
+        },
+        {
+          "title": "should perform task B",
+          "fullTitle": "direct_booking should perform task B",
+          "state": "passed"
+        },
+        {
+          "title": "should perform task C",
+          "fullTitle": "direct_booking should perform task C",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task D",
+          "fullTitle": "direct_booking should perform task D",
+          "state": "skipped"
+        }
+      ]
+    },
+    {
+      "id": "2",
+      "suites": 1,
+      "tests": 100,
+      "passes": 80,
+      "pending": 20,
+      "failures": 10,
+      "skipped": 0,
+      "passPercent": 80,
+      "pendingPercent": 20,
+      "fileName": "cypress/integration/examples/basics_tags.spec2.js",
+      "results": [
+        {
+          "title": "should perform task E",
+          "fullTitle": "direct_booking should perform task E",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task F",
+          "fullTitle": "direct_booking should perform task F",
+          "state": "passed"
+        },
+        {
+          "title": "should perform task G",
+          "fullTitle": "direct_booking should perform task G",
+          "state": "passed"
+        },
+        {
+          "title": "should perform task H",
+          "fullTitle": "direct_booking should perform task H",
+          "state": "passed"
+        }
+      ]
+    },
+    {
+      "id": "3",
+      "suites": 14,
+      "tests": 110,
+      "passes": 18,
+      "pending": 32,
+      "failures": 30,
+      "skipped": 0,
+      "passPercent": 80,
+      "pendingPercent": 20,
+      "fileName": "cypress/integration/examples/basics_tags.spec3.js",
+      "results": [
+        {
+          "title": "should perform task I",
+          "fullTitle": "direct_booking should perform task I",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task J",
+          "fullTitle": "direct_booking should perform task J",
+          "state": "skipped"
+        },
+        {
+          "title": "should perform task K",
+          "fullTitle": "direct_booking should perform task K",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task L",
+          "fullTitle": "direct_booking should perform task L",
+          "state": "passed"
+        }
+      ]
+    },
+    {
+      "id": "4",
+      "suites": 17,
+      "tests": 40,
+      "passes": 8,
+      "pending": 32,
+      "failures": 42,
+      "skipped": 10,
+      "passPercent": 80,
+      "pendingPercent": 20,
+      "fileName": "cypress/integration/examples/basics_tags.spec4.js",
+      "results": [
+        {
+          "title": "should perform task I",
+          "fullTitle": "direct_booking should perform task M",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task J",
+          "fullTitle": "direct_booking should perform task N",
+          "state": "skipped"
+        },
+        {
+          "title": "should perform task K",
+          "fullTitle": "direct_booking should perform task O",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task L",
+          "fullTitle": "direct_booking should perform task P",
+          "state": "passed"
+        }
+      ]
+    },
+    {
+      "id": "5",
+      "suites": 54,
+      "tests": 30,
+      "passes": 18,
+      "pending": 12,
+      "failures": 20,
+      "skipped": 10,
+      "passPercent": 80,
+      "pendingPercent": 20,
+      "fileName": "cypress/integration/examples/basics_tags.spec5.js",
+      "results": [
+        {
+          "title": "should perform task I",
+          "fullTitle": "direct_booking should perform task Q",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task J",
+          "fullTitle": "direct_booking should perform task R",
+          "state": "skipped"
+        },
+        {
+          "title": "should perform task K",
+          "fullTitle": "direct_booking should perform task S",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task L",
+          "fullTitle": "direct_booking should perform task T",
+          "state": "passed"
+        }
+      ]
+    },
+    {
+      "id": "6",
+      "suites": 204,
+      "tests": 20,
+      "passes": 8,
+      "pending": 2,
+      "failures": 9,
+      "skipped": 0,
+      "passPercent": 80,
+      "pendingPercent": 20,
+      "fileName": "cypress/integration/examples/basics_tags.spec6.js",
+      "results": [
+        {
+          "title": "should perform task I",
+          "fullTitle": "direct_booking should perform task U",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task J",
+          "fullTitle": "direct_booking should perform task V",
+          "state": "skipped"
+        },
+        {
+          "title": "should perform task K",
+          "fullTitle": "direct_booking should perform task W",
+          "state": "failed"
+        },
+        {
+          "title": "should perform task L",
+          "fullTitle": "direct_booking should perform task X",
+          "state": "passed"
+        }
+      ]
+    }
+  ]
+}
