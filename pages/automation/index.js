@@ -10,6 +10,7 @@ import { InputText } from 'primereact/inputtext';
 import { LayoutContext } from "../../layout/context/layoutcontext";
 import { AutomationService } from "../../demo/service/AutomationService";
 import { FilterMatchMode, FilterOperator } from 'primereact/api';
+import { Accordion, AccordionTab } from 'primereact/accordion';
 
 function calculateTotal(data, key) {
   return data
@@ -266,19 +267,18 @@ const Automation = () => {
   const rowExpansionTemplate = (data) => {
     return (
       <div className="orders-subtable">
-      {data.results.map((testCase, index) => (
-        <div key={index} className="test-case">
-          <h5 style={{marginTop : '1.5rem', marginBottom : '.5rem'}}>
-          Results of <b>'{testCase.file.split('/').pop()}'</b>
-          </h5>
-          <DataTable value={testCase.tests} responsiveLayout="scroll">
-            <Column field="title" header="Title" sortable></Column>
-            <Column field="fullTitle" header="Full Title" sortable></Column>
-            <Column field="state" header="Status" body={statusOrderBodyTemplate} sortable></Column>
-            <Column field="duration" header="Duration(ms)" sortable></Column>
-          </DataTable>
-        </div>
-      ))}
+      <Accordion>
+        {data.results.map((testCase, index) => (
+          <AccordionTab key={index} header={`Results of '${testCase.file.split('/').pop()}'`}>
+            <DataTable value={testCase.tests} responsiveLayout="scroll">
+              <Column field="title" header="Title" sortable></Column>
+              <Column field="fullTitle" header="Full Title" sortable></Column>
+              <Column field="state" header="Status" body={statusOrderBodyTemplate} sortable></Column>
+              <Column field="duration" header="Duration(ms)" sortable></Column>
+            </DataTable>
+          </AccordionTab>
+        ))}
+      </Accordion>
     </div>
     );
   };
@@ -571,9 +571,9 @@ const Automation = () => {
               header={headerSection}
             >
               <Column expander style={{ width: "3em" }} />
-              <Column field="testName" header="Name" />
-              <Column field="suites" header="Suites" />
-              <Column field="tests" header="Tests" />
+              <Column field="testName" header="Name" style={{fontWeight:'800'}} />
+              <Column field="suites" header="Suites" style={{fontWeight:'800'}} />
+              <Column field="tests" header="Tests" style={{fontWeight:'800'}} />
               <Column header="Results" body={statusRow} />
             </DataTable>
           )}
