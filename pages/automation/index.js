@@ -2,7 +2,7 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
+import { Column,ColumnFilterElementTemplateOptions } from "primereact/column";
 import { Button } from "primereact/button";
 import { Chart } from "primereact/chart";
 import { Dropdown } from 'primereact/dropdown';
@@ -29,6 +29,27 @@ const Automation = () => {
   const [allExpanded, setAllExpanded] = useState(false);
   const [globalFilterValue, setglobalFilterValue] = useState('');
   const { layoutConfig } = useContext(LayoutContext);
+
+
+  const statuses = ['passed', 'failed', 'pending', 'skipped'];
+
+  const statusFilterTemplate = function (options) {
+    return React.createElement(Dropdown, {
+        value: options.value,
+        options: statuses,
+        onChange: function (e) {
+            return options.filterCallback(e.value, options.index);
+        },
+        itemTemplate: statusItemTemplate,
+        placeholder: "Select a Status",
+        className: "p-column-filter",
+        showClear: true,
+    });
+};
+
+const statusItemTemplate = function (option) {
+  return React.createElement("span", { className: "customer-badge status-" + option }, option);
+};
 
   const onGlobalFilterChange = (e) => {
     const value = e.target.value;
@@ -271,9 +292,9 @@ const Automation = () => {
         {data.results.map((testCase, index) => (
           <AccordionTab key={index} header={`Results of '${testCase.file.split('/').pop()}'`}>
             <DataTable value={testCase.tests} responsiveLayout="scroll">
-              <Column field="title" header="Title" sortable></Column>
+              <Column field="title" header="Title" filter style={{ minWidth: '10rem' }}></Column>
               <Column field="fullTitle" header="Full Title" sortable></Column>
-              <Column field="state" header="Status" body={statusOrderBodyTemplate} sortable></Column>
+              <Column field="state" header="Status" body={statusOrderBodyTemplate} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} filter filterElement={statusFilterTemplate}></Column>
               <Column field="duration" header="Duration(ms)" sortable></Column>
             </DataTable>
           </AccordionTab>
