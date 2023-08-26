@@ -2,15 +2,16 @@
 import React, { useContext, useEffect, useState } from "react";
 
 import { DataTable } from "primereact/datatable";
-import { Column,ColumnFilterElementTemplateOptions } from "primereact/column";
+import { Column, ColumnFilterElementTemplateOptions } from "primereact/column";
 import { Button } from "primereact/button";
 import { Chart } from "primereact/chart";
-import { Dropdown } from 'primereact/dropdown';
-import { InputText } from 'primereact/inputtext';
+import { Dropdown } from "primereact/dropdown";
+import { InputText } from "primereact/inputtext";
 import { LayoutContext } from "../../layout/context/layoutcontext";
 import { AutomationService } from "../../demo/service/AutomationService";
-import { FilterMatchMode, FilterOperator } from 'primereact/api';
-import { Accordion, AccordionTab } from 'primereact/accordion';
+import { FilterMatchMode, FilterOperator } from "primereact/api";
+import { Accordion, AccordionTab } from "primereact/accordion";
+import { Dialog } from "primereact/dialog";
 
 function calculateTotal(data, key) {
   return data
@@ -23,33 +24,42 @@ const Automation = () => {
   const [options, setOptions] = useState({});
   const [data, setChartData] = useState({});
   const reversedReportData = [...reportData].reverse();
-  const [dropdownValue, setDropdownValue] = useState('');
+  const [dropdownValue, setDropdownValue] = useState("");
   const [filters, setFilters] = useState(null);
   const [expandedRows, setExpandedRows] = useState(null);
   const [allExpanded, setAllExpanded] = useState(false);
-  const [globalFilterValue, setglobalFilterValue] = useState('');
+  const [globalFilterValue, setglobalFilterValue] = useState("");
   const { layoutConfig } = useContext(LayoutContext);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [selectedErrorMessage, setSelectedErrorMessage] = useState("");
 
+  const statuses = ["passed", "failed", "pending", "skipped"];
 
-  const statuses = ['passed', 'failed', 'pending', 'skipped'];
-
+  const showErrorMessageDialog = (errorMessage) => {
+    setSelectedErrorMessage(errorMessage);
+    setDialogVisible(true);
+  };
   const statusFilterTemplate = function (options) {
     return React.createElement(Dropdown, {
-        value: options.value,
-        options: statuses,
-        onChange: function (e) {
-            return options.filterCallback(e.value, options.index);
-        },
-        itemTemplate: statusItemTemplate,
-        placeholder: "Select a Status",
-        className: "p-column-filter",
-        showClear: true,
+      value: options.value,
+      options: statuses,
+      onChange: function (e) {
+        return options.filterCallback(e.value, options.index);
+      },
+      itemTemplate: statusItemTemplate,
+      placeholder: "Select a Status",
+      className: "p-column-filter",
+      showClear: true,
     });
-};
+  };
 
-const statusItemTemplate = function (option) {
-  return React.createElement("span", { className: "customer-badge status-" + option }, option);
-};
+  const statusItemTemplate = function (option) {
+    return React.createElement(
+      "span",
+      { className: "customer-badge status-" + option },
+      option
+    );
+  };
 
   const onGlobalFilterChange = (e) => {
     const value = e.target.value;
@@ -71,13 +81,17 @@ const statusItemTemplate = function (option) {
       .then((data) => {
         setReportData(data);
         const reversedReportData = [...data].reverse();
-        const initialDropdownValue = reversedReportData.length > 0 ? reversedReportData[0].testName : "";
-        setDropdownValue(initialDropdownValue)
+        const initialDropdownValue =
+          reversedReportData.length > 0 ? reversedReportData[0].testName : "";
+        setDropdownValue(initialDropdownValue);
 
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue("--text-color");
-        const textColorSecondary = documentStyle.getPropertyValue("--text-color-secondary");
-        const surfaceBorder =documentStyle.getPropertyValue("--surface-border");
+        const textColorSecondary = documentStyle.getPropertyValue(
+          "--text-color-secondary"
+        );
+        const surfaceBorder =
+          documentStyle.getPropertyValue("--surface-border");
 
         const latestExecutionData = data.slice(-1);
         const pieData = {
@@ -203,7 +217,7 @@ const statusItemTemplate = function (option) {
 
     initfilters();
   }, [layoutConfig]);
-  
+
   const latestResult = reportData.slice(-1);
   const totalExecution = reportData.length;
   const totalSuites = calculateTotal(reportData, "suites");
@@ -271,36 +285,99 @@ const statusItemTemplate = function (option) {
       </div>
     );
   };
-  
-  const statusRow = (rowData) => {
-      const { passes, pending, failures, skipped } = rowData;
-      const total = (passes + pending + failures + skipped)
 
-      return (
-        <div className="progress-bar">
-          <div className="progress-bar-text">
-            <span style={{color:'green', fontWeight: 'bold'}}>{passes} Passed</span> / <span style={{color:'red', fontWeight: 'bold'}}>{failures} Failed</span> / <span style={{color:'orange', fontWeight: 'bold'}}>{pending} Pending</span> / <span style={{color:'gray', fontWeight: 'bold'}}>{skipped} Skipped</span>
-          </div>
+  const statusRow = (rowData) => {
+    const { passes, pending, failures, skipped } = rowData;
+    const total = passes + pending + failures + skipped;
+
+    return (
+      <div className="progress-bar">
+        <div className="progress-bar-text">
+          <span style={{ color: "green", fontWeight: "bold" }}>
+            {passes} Passed
+          </span>{" "}
+          /{" "}
+          <span style={{ color: "red", fontWeight: "bold" }}>
+            {failures} Failed
+          </span>{" "}
+          /{" "}
+          <span style={{ color: "orange", fontWeight: "bold" }}>
+            {pending} Pending
+          </span>{" "}
+          /{" "}
+          <span style={{ color: "gray", fontWeight: "bold" }}>
+            {skipped} Skipped
+          </span>
         </div>
-      );
+      </div>
+    );
   };
 
   const rowExpansionTemplate = (data) => {
     return (
       <div className="orders-subtable">
-      <Accordion>
-        {data.results.map((testCase, index) => (
-          <AccordionTab key={index} header={`Results of '${testCase.file.split('/').pop()}'`}>
-            <DataTable value={testCase.tests} responsiveLayout="scroll">
-              <Column field="title" header="Title" filter style={{ minWidth: '10rem' }}></Column>
-              <Column field="fullTitle" header="Full Title" sortable></Column>
-              <Column field="state" header="Status" body={statusOrderBodyTemplate} filterMenuStyle={{ width: '14rem' }} style={{ minWidth: '12rem' }} filter filterElement={statusFilterTemplate}></Column>
-              <Column field="duration" header="Duration(ms)" sortable></Column>
-            </DataTable>
-          </AccordionTab>
-        ))}
-      </Accordion>
-    </div>
+        <Accordion>
+          {data.results.map((testCase, index) => (
+            <AccordionTab
+              key={index}
+              header={`Results of '${testCase.file.split("/").pop()}'`}
+            >
+              <DataTable value={testCase.tests} responsiveLayout="scroll">
+                <Column
+                  field="title"
+                  header="Title"
+                  filter
+                  style={{ minWidth: "10rem" }}
+                ></Column>
+                <Column field="fullTitle" header="Full Title" sortable></Column>
+                <Column
+                  field="state"
+                  header="Status"
+                  body={statusOrderBodyTemplate}
+                  filterMenuStyle={{ width: "14rem" }}
+                  style={{ minWidth: "12rem" }}
+                  filter
+                  filterElement={statusFilterTemplate}
+                ></Column>
+                <Column
+                  field="duration"
+                  header="Duration(ms)"
+                  sortable
+                ></Column>
+                <Column
+                  field="err.message"
+                  header="Logs"
+                  body={(rowData) =>
+                    rowData.err ? (
+                      <Button
+                        aria-label="Show"
+                        type="button"
+                        className="p-button p-component"
+                        onClick={() => {
+                          showErrorMessageDialog(rowData.err.message); // Pass the error message to the dialog function
+                        }}
+                      >
+                        <span className="p-button-icon p-c p-button-icon-left pi pi-external-link"></span>
+                        <span className="p-button-label p-c">Show</span>
+                        <span role="presentation" className="p-ink"></span>
+                      </Button>
+                    ) : null
+                  }
+                />
+              </DataTable>
+              <Dialog
+                visible={dialogVisible}
+                onHide={() => setDialogVisible(false)}
+                header="Error Logs"
+                modal
+                style={{ width: "60vw" }}
+              >
+                <p>{selectedErrorMessage}</p>
+              </Dialog>
+            </AccordionTab>
+          ))}
+        </Accordion>
+      </div>
     );
   };
 
@@ -343,7 +420,7 @@ const statusItemTemplate = function (option) {
   };
 
   const headerSection = renderHeader();
- 
+
   return (
     <div className="surface-ground px-4 py-5 md:px-6 lg:px-8">
       <div className="grid card">
@@ -592,9 +669,21 @@ const statusItemTemplate = function (option) {
               header={headerSection}
             >
               <Column expander style={{ width: "3em" }} />
-              <Column field="testName" header="Name" style={{fontWeight:'800'}} />
-              <Column field="suites" header="Suites" style={{fontWeight:'800'}} />
-              <Column field="tests" header="Tests" style={{fontWeight:'800'}} />
+              <Column
+                field="testName"
+                header="Name"
+                style={{ fontWeight: "800" }}
+              />
+              <Column
+                field="suites"
+                header="Suites"
+                style={{ fontWeight: "800" }}
+              />
+              <Column
+                field="tests"
+                header="Tests"
+                style={{ fontWeight: "800" }}
+              />
               <Column header="Results" body={statusRow} />
             </DataTable>
           )}
