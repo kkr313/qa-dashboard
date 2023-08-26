@@ -320,7 +320,9 @@ const Automation = () => {
           {data.results.map((testCase, index) => (
             <AccordionTab
               key={index}
-              header={`Results of '${testCase.file.split("/").pop()}'`}
+              header={`Results of '${
+                testCase.file.split("cypress/integration/")[1]
+              }'`}
             >
               <DataTable value={testCase.tests} responsiveLayout="scroll">
                 <Column
@@ -671,7 +673,7 @@ const Automation = () => {
               <Column expander style={{ width: "3em" }} />
               <Column
                 field="testName"
-                header="Name"
+                header="Test Name"
                 style={{ fontWeight: "800" }}
               />
               <Column
@@ -681,7 +683,7 @@ const Automation = () => {
               />
               <Column
                 field="tests"
-                header="Tests"
+                header="Test Cases"
                 style={{ fontWeight: "800" }}
               />
               <Column header="Results" body={statusRow} />
