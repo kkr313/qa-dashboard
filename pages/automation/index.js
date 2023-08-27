@@ -320,9 +320,63 @@ const Automation = () => {
           {data.results.map((testCase, index) => (
             <AccordionTab
               key={index}
-              header={`Results of '${
-                testCase.file.split("cypress/integration/")[1]
-              }'`}
+              header={
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    margin: "10px",
+                  }}
+                >
+                  Results of '{testCase.file.split("cypress/integration/")[1]}'
+                  →
+                  <span style={{ fontSize: ".7rem", marginLeft: "5px" }}>
+                    <span style={{ color: "black" }}>
+                      Total Tests: {testCase.tests.length}
+                    </span>{" "}
+                    (
+                    <span>
+                      <span style={{ color: "green" }}>
+                        {
+                          testCase.tests.filter(
+                            (test) => test.state === "passed"
+                          ).length
+                        }{" "}
+                        Passed
+                      </span>{" "}
+                      /{" "}
+                      <span style={{ color: "red" }}>
+                        {
+                          testCase.tests.filter(
+                            (test) => test.state === "failed"
+                          ).length
+                        }{" "}
+                        Failed
+                      </span>{" "}
+                      /{" "}
+                      <span style={{ color: "orange" }}>
+                        {
+                          testCase.tests.filter(
+                            (test) => test.state === "pending"
+                          ).length
+                        }{" "}
+                        Pending
+                      </span>{" "}
+                      /{" "}
+                      <span style={{ color: "gray" }}>
+                        {
+                          testCase.tests.filter(
+                            (test) => test.state === "skipped"
+                          ).length
+                        }{" "}
+                        Skipped
+                      </span>{" "}
+                    </span>
+                    )
+                  </span>
+                </div>
+              }
             >
               <DataTable value={testCase.tests} responsiveLayout="scroll">
                 <Column
