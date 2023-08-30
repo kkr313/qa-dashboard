@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
-import React, { useContext, useEffect, useState } from "react";
-
+import React, { useRef, useContext, useEffect, useState } from "react";
+import { ClipLoader } from "react-spinners";
 import { DataTable } from "primereact/datatable";
 import { Column, ColumnFilterElementTemplateOptions } from "primereact/column";
 import { Button } from "primereact/button";
@@ -12,6 +12,9 @@ import { AutomationService } from "../../demo/service/AutomationService";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { Dialog } from "primereact/dialog";
+import styles from "./index.module.scss";
+import { classNames } from "primereact/utils";
+import { Toast } from "primereact/toast";
 
 function calculateTotal(data, key) {
   return data
@@ -32,8 +35,90 @@ const Automation = () => {
   const { layoutConfig } = useContext(LayoutContext);
   const [dialogVisible, setDialogVisible] = useState(false);
   const [selectedErrorMessage, setSelectedErrorMessage] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [Branch, setBranch] = useState(null);
+  const [tags, setTags] = useState("");
+  const [report, setReport] = useState("");
+  const toast = useRef(null);
+  const [loading, setLoading] = useState(false);
 
   const statuses = ["passed", "failed", "pending", "skipped"];
+  const branch = [
+    { name: "QA", code: "qa" },
+    { name: "SIT", code: "sit" },
+    { name: "MASTER", code: "master" },
+  ];
+
+  const openDialog = () => {
+    setIsDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setIsDialogOpen(false);
+  };
+
+  const triggerJenkins = (event) => {
+    event.preventDefault();
+
+    if (!Branch || !tags || !report) {
+      showWarn();
+    } else {
+      var myHeaders = new Headers();
+      myHeaders.append(
+        "Authorization",
+        "Basic a2FscGFuYS5zQGZyZWlnaHRpZnkuY29tOjExOTY2YjBjOGFkYWUzM2FhYWViZDEyN2M1M2M2NzczZDc="
+      );
+
+      var formdata = new FormData();
+      formdata.append("BRANCH", Branch.code);
+      formdata.append("TAGS", tags);
+      formdata.append("REPORT", report);
+
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: formdata,
+        redirect: "follow",
+      };
+
+      // Using the CORS Anywhere proxy
+      const corsProxyUrl = "https://cors-anywhere.herokuapp.com/";
+      const jenkinsUrl =
+        "https://jenkins.freightbro.in/job/fb_e2e_automation/buildWithParameters?token=fb_e2e_qa_!%40%23%24#$";
+
+      setLoading(true);
+      fetch(corsProxyUrl + jenkinsUrl, requestOptions)
+        .then((response) => response.text())
+        .then((result) => {
+          console.log(result);
+          setBranch(null);
+          setTags("");
+          setReport("");
+          closeDialog();
+          showSuccess();
+        })
+        .catch((error) => console.log("error", error))
+        .finally(() => setLoading(false));
+    }
+  };
+
+  const showSuccess = () => {
+    toast.current?.show({
+      severity: "success",
+      summary: "Success Message",
+      detail: "Job Successfully Created",
+      life: 3000,
+    });
+  };
+
+  const showWarn = () => {
+    toast.current?.show({
+      severity: "warn",
+      summary: "Warn Message",
+      detail: "Please Provide all Inputs..!",
+      life: 3000,
+    });
+  };
 
   const showErrorMessageDialog = (errorMessage) => {
     setSelectedErrorMessage(errorMessage);
@@ -479,6 +564,96 @@ const Automation = () => {
 
   return (
     <div className="surface-ground px-4 py-5 md:px-6 lg:px-8">
+      <div>
+        <div
+          className="flex items-center mb-4"
+          style={{ justifyContent: "space-between" }}
+        >
+          <div></div>
+          <Toast ref={toast} />
+          <Button
+            aria-label="Show"
+            type="button"
+            className="p-button p-component"
+            onClick={openDialog}
+          >
+            <span className="p-button-icon p-c p-button-icon-left pi pi-external-link"></span>
+            <span className="p-button-label p-c">Trigger Jenkins Job</span>
+          </Button>
+        </div>
+
+        <Dialog
+          header="Trigger Jenkins Jobs"
+          visible={isDialogOpen}
+          onHide={closeDialog}
+          modal
+          style={{ width: "40vw" }}
+        >
+          <form onSubmit={triggerJenkins} disabled={loading}>
+            <div className="grid p-fluid mt-3">
+              <div className="field col-12 md:col-4">
+                <span className="p-float-label">
+                  <Dropdown
+                    id="dropdown"
+                    options={branch}
+                    value={Branch}
+                    onChange={(e) => {
+                      setBranch(e.value);
+                    }}
+                    optionLabel="name"
+                  ></Dropdown>
+                  <label htmlFor="dropdown">Select Branch</label>
+                </span>
+              </div>
+              <div className="field col-12 md:col-4">
+                <span className="p-float-label">
+                  <InputText
+                    type="text"
+                    id="inputtext"
+                    value={tags}
+                    onChange={(e) => setTags(e.target.value)}
+                  />
+                  <label htmlFor="inputtext">Tag Name</label>
+                </span>
+              </div>
+              <div className="field col-12 md:col-4">
+                <span className="p-float-label">
+                  <InputText
+                    type="text"
+                    id="inputtext"
+                    value={report}
+                    onChange={(e) => setReport(e.target.value)}
+                  />
+                  <label htmlFor="inputtext">Report Name</label>
+                </span>
+              </div>
+            </div>
+            <div className="flex justify-end mt-3 pr-3">
+              <Button
+                className={classNames(styles["p-button"], styles["discord"])}
+                aria-label="Discord"
+                type="submit"
+              >
+                <span className="flex align-items-center px-2 bg-bluegray-800 text-white">
+                  <i className="pi pi-cog"></i>
+                </span>
+                <span className="px-3 py-2 flex align-items-center text-white">
+                  Execute
+                </span>
+              </Button>
+              {loading && (
+                <div
+                  className="ml-2"
+                  style={{ marginLeft: "1rem !important", marginTop: "10px" }}
+                >
+                  <ClipLoader color={"#000"} loading={true} size={25} />
+                </div>
+              )}
+            </div>
+          </form>
+        </Dialog>
+      </div>
+
       <div className="grid card">
         <div className="col-12 md:col-6 lg:col-4">
           <div className="surface-card shadow-2 p-3 border-round">

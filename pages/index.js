@@ -1,124 +1,173 @@
-import { Button } from 'primereact/button';
-import { Chart } from 'primereact/chart';
-import { Column } from 'primereact/column';
-import { DataTable } from 'primereact/datatable';
-import { Menu } from 'primereact/menu';
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { ProductService } from '../demo/service/ProductService';
-import { LayoutContext } from '../layout/context/layoutcontext';
-import Link from 'next/link';
+import { Button } from "primereact/button";
+import { Chart } from "primereact/chart";
+import { Column } from "primereact/column";
+import { DataTable } from "primereact/datatable";
+import { Menu } from "primereact/menu";
+import React, { useContext, useEffect, useRef, useState } from "react";
+import { ProductService } from "../demo/service/ProductService";
+import { LayoutContext } from "../layout/context/layoutcontext";
+import Link from "next/link";
 const lineData = {
-    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
-    datasets: [
-        {
-            label: 'First Dataset',
-            data: [65, 59, 80, 81, 56, 55, 40],
-            fill: false,
-            backgroundColor: '#2f4860',
-            borderColor: '#2f4860',
-            tension: 0.4
-        },
-        {
-            label: 'Second Dataset',
-            data: [28, 48, 40, 19, 86, 27, 90],
-            fill: false,
-            backgroundColor: '#00bb7e',
-            borderColor: '#00bb7e',
-            tension: 0.4
-        }
-    ]
+  labels: ["January", "February", "March", "April", "May", "June", "July"],
+  datasets: [
+    {
+      label: "First Dataset",
+      data: [65, 59, 80, 81, 56, 55, 40],
+      fill: false,
+      backgroundColor: "#2f4860",
+      borderColor: "#2f4860",
+      tension: 0.4,
+    },
+    {
+      label: "Second Dataset",
+      data: [28, 48, 40, 19, 86, 27, 90],
+      fill: false,
+      backgroundColor: "#00bb7e",
+      borderColor: "#00bb7e",
+      tension: 0.4,
+    },
+  ],
 };
 
 const Dashboard = () => {
-    const [products, setProducts] = useState(null);
-    const menu1 = useRef(null);
-    const menu2 = useRef(null);
-    const [lineOptions, setLineOptions] = useState(null);
-    const { layoutConfig } = useContext(LayoutContext);
+  const [products, setProducts] = useState(null);
+  const menu1 = useRef(null);
+  const menu2 = useRef(null);
+  const [lineOptions, setLineOptions] = useState(null);
+  const { layoutConfig } = useContext(LayoutContext);
 
-    const applyLightTheme = () => {
-        const lineOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#495057'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#495057'
-                    },
-                    grid: {
-                        color: '#ebedef'
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#495057'
-                    },
-                    grid: {
-                        color: '#ebedef'
-                    }
-                }
-            }
-        };
-
-        setLineOptions(lineOptions);
+  const applyLightTheme = () => {
+    const lineOptions = {
+      plugins: {
+        legend: {
+          labels: {
+            color: "#495057",
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#495057",
+          },
+          grid: {
+            color: "#ebedef",
+          },
+        },
+        y: {
+          ticks: {
+            color: "#495057",
+          },
+          grid: {
+            color: "#ebedef",
+          },
+        },
+      },
     };
 
-    const applyDarkTheme = () => {
-        const lineOptions = {
-            plugins: {
-                legend: {
-                    labels: {
-                        color: '#ebedef'
-                    }
-                }
-            },
-            scales: {
-                x: {
-                    ticks: {
-                        color: '#ebedef'
-                    },
-                    grid: {
-                        color: 'rgba(160, 167, 181, .3)'
-                    }
-                },
-                y: {
-                    ticks: {
-                        color: '#ebedef'
-                    },
-                    grid: {
-                        color: 'rgba(160, 167, 181, .3)'
-                    }
-                }
-            }
-        };
+    setLineOptions(lineOptions);
+  };
 
-        setLineOptions(lineOptions);
+  const applyDarkTheme = () => {
+    const lineOptions = {
+      plugins: {
+        legend: {
+          labels: {
+            color: "#ebedef",
+          },
+        },
+      },
+      scales: {
+        x: {
+          ticks: {
+            color: "#ebedef",
+          },
+          grid: {
+            color: "rgba(160, 167, 181, .3)",
+          },
+        },
+        y: {
+          ticks: {
+            color: "#ebedef",
+          },
+          grid: {
+            color: "rgba(160, 167, 181, .3)",
+          },
+        },
+      },
     };
 
-    useEffect(() => {
-        ProductService.getProductsSmall().then((data) => setProducts(data));
-    }, []);
+    setLineOptions(lineOptions);
+  };
 
-    useEffect(() => {
-        if (layoutConfig.colorScheme === 'light') {
-            applyLightTheme();
-        } else {
-            applyDarkTheme();
+  useEffect(() => {
+    ProductService.getProductsSmall().then((data) => setProducts(data));
+  }, []);
+
+  useEffect(() => {
+    if (layoutConfig.colorScheme === "light") {
+      applyLightTheme();
+    } else {
+      applyDarkTheme();
+    }
+  }, [layoutConfig.colorScheme]);
+
+  const formatCurrency = (value) => {
+    return value.toLocaleString("en-US", {
+      style: "currency",
+      currency: "USD",
+    });
+  };
+
+  return (
+    <div className="centered">
+      <div className="card">
+        <p>This page is currently under development</p>
+        <a
+          href="https://qadash.netlify.app/automation"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="button"
+        >
+          Open Automation Dashboard
+        </a>
+      </div>
+      <style jsx>{`
+        .centered {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 80vh;
         }
-    }, [layoutConfig.colorScheme]);
 
-    const formatCurrency = (value) => {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-    };
+        .card {
+          text-align: center;
+          padding: 20px;
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          background-color: #f7f7f7;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
 
-    return (
-        <div className="grid">
-            <div className="col-12 lg:col-6 xl:col-3">
+        .button {
+          display: inline-block;
+          padding: 10px 20px;
+          background-color: #007bff;
+          color: #fff;
+          border: none;
+          border-radius: 5px;
+          text-decoration: none;
+          transition: background-color 0.3s ease-in-out;
+        }
+
+        .button:hover {
+          background-color: #0056b3;
+        }
+      `}</style>
+    </div>
+  );
+  {
+    /* <div className="col-12 lg:col-6 xl:col-3">
                 <div className="card mb-0">
                     <div className="flex justify-content-between mb-3">
                         <div>
@@ -374,9 +423,8 @@ const Dashboard = () => {
                         </Link>
                     </div>
                 </div>
-            </div>
-        </div>
-    );
+            </div> */
+  }
 };
 
 export default Dashboard;
