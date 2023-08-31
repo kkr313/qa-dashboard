@@ -44,9 +44,9 @@ const Automation = () => {
 
   const statuses = ["passed", "failed", "pending", "skipped"];
   const branch = [
-    { name: "QA", code: "qa" },
-    { name: "SIT", code: "sit" },
-    { name: "MASTER", code: "master" },
+    { name: "qa", code: "qa" },
+    { name: "sit", code: "sit" },
+    { name: "master", code: "master" },
   ];
 
   const openDialog = () => {
@@ -97,7 +97,10 @@ const Automation = () => {
           closeDialog();
           showSuccess();
         })
-        .catch((error) => console.log("error", error))
+        .catch((error) => {
+          console.log("error", error);
+          showError();
+        })
         .finally(() => setLoading(false));
     }
   };
@@ -116,6 +119,15 @@ const Automation = () => {
       severity: "warn",
       summary: "Warn Message",
       detail: "Please Provide all Inputs..!",
+      life: 3000,
+    });
+  };
+
+  const showError = () => {
+    toast.current?.show({
+      severity: "error",
+      summary: "Error Message",
+      detail: "Message Detail",
       life: 3000,
     });
   };
