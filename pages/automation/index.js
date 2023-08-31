@@ -15,6 +15,7 @@ import { Dialog } from "primereact/dialog";
 import styles from "./index.module.scss";
 import { classNames } from "primereact/utils";
 import { Toast } from "primereact/toast";
+import { Chip } from "primereact/chip";
 
 function calculateTotal(data, key) {
   return data
@@ -661,6 +662,30 @@ const Automation = () => {
                   <ClipLoader color={"#000"} loading={true} size={25} />
                 </div>
               )}
+            </div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <Chip
+                label={
+                  <span>
+                    <i
+                      className="pi pi-info-circle"
+                      style={{ marginRight: "5px" }}
+                    ></i>
+                    <span>
+                      Want to see job progress? Check it on{" "}
+                      <a
+                        href="https://jenkins.freightbro.in/view/QA/job/fb_e2e_automation/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="chip-link"
+                      >
+                        Jenkins
+                      </a>
+                    </span>
+                  </span>
+                }
+                className="custom-chip"
+              />
             </div>
           </form>
         </Dialog>
