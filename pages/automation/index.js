@@ -1,6 +1,6 @@
 /* eslint-disable react/no-unescaped-entities */
 import React, { useRef, useContext, useEffect, useState } from "react";
-import { ClipLoader } from "react-spinners";
+import { ClipLoader, BarLoader } from "react-spinners";
 import { DataTable } from "primereact/datatable";
 import { Column, ColumnFilterElementTemplateOptions } from "primereact/column";
 import { Button } from "primereact/button";
@@ -16,6 +16,7 @@ import styles from "./index.module.scss";
 import { classNames } from "primereact/utils";
 import { Toast } from "primereact/toast";
 import { Chip } from "primereact/chip";
+import { Paginator } from "primereact/paginator";
 
 function calculateTotal(data, key) {
   return data
@@ -27,7 +28,9 @@ const Automation = () => {
   const [reportData, setReportData] = useState([]);
   const [options, setOptions] = useState({});
   const [data, setChartData] = useState({});
-  const reversedReportData = [...reportData].reverse();
+  const reversedReportData = Array.isArray(reportData)
+    ? [...reportData].reverse()
+    : null;
   const [dropdownValue, setDropdownValue] = useState("");
   const [filters, setFilters] = useState(null);
   const [expandedRows, setExpandedRows] = useState(null);
@@ -42,6 +45,15 @@ const Automation = () => {
   const [report, setReport] = useState("");
   const toast = useRef(null);
   const [loading, setLoading] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [JenkinStatusData, setJenkinStatusData] = useState([]);
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(5);
+
+  const onPageChange = (event) => {
+    setFirst(event.first);
+    setRows(event.rows);
+  };
 
   const statuses = ["passed", "failed", "pending", "skipped"];
   const branch = [
@@ -49,6 +61,14 @@ const Automation = () => {
     { name: "sit", code: "sit" },
     { name: "master", code: "master" },
   ];
+
+  const openStatusDialog = () => {
+    setDialogOpen(true);
+  };
+
+  const closeStatusDialog = () => {
+    setDialogOpen(false);
+  };
 
   const openDialog = () => {
     setIsDialogOpen(true);
@@ -58,51 +78,45 @@ const Automation = () => {
     setIsDialogOpen(false);
   };
 
-  const triggerJenkins = (event) => {
+  const triggerJenkins = async (event) => {
     event.preventDefault();
 
     if (!Branch || !tags || !report) {
       showWarn();
     } else {
-      var myHeaders = new Headers();
-      myHeaders.append(
-        "Authorization",
-        "Basic a2FscGFuYS5zQGZyZWlnaHRpZnkuY29tOjExOTY2YjBjOGFkYWUzM2FhYWViZDEyN2M1M2M2NzczZDc="
-      );
-
-      var formdata = new FormData();
-      formdata.append("BRANCH", Branch.code);
-      formdata.append("TAGS", tags);
-      formdata.append("REPORT", report);
-
-      var requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: formdata,
-        redirect: "follow",
-      };
-
-      // Using the CORS Anywhere proxy
-      const corsProxyUrl = "https://cors-anywhere.herokuapp.com/";
-      const jenkinsUrl =
-        "https://jenkins.freightbro.in/job/fb_e2e_automation/buildWithParameters?token=fb_e2e_qa_!%40%23%24#$";
-
       setLoading(true);
-      fetch(corsProxyUrl + jenkinsUrl, requestOptions)
-        .then((response) => response.text())
-        .then((result) => {
-          console.log(result);
+
+      try {
+        const response = await fetch("/api/triggerJenkins", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            BRANCH: Branch.code,
+            TAGS: tags,
+            REPORT: report,
+          }),
+        });
+
+        if (response.status === 201) {
+          const result = await response.json();
+          console.log(result.data);
           setBranch(null);
           setTags("");
           setReport("");
           closeDialog();
           showSuccess();
-        })
-        .catch((error) => {
-          console.log("error", error);
+        } else {
+          console.error("Failed to trigger Jenkins:", response.statusText);
           showError();
-        })
-        .finally(() => setLoading(false));
+        }
+      } catch (error) {
+        console.error("Error:", error);
+        showError();
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
@@ -128,7 +142,7 @@ const Automation = () => {
     toast.current?.show({
       severity: "error",
       summary: "Error Message",
-      detail: "Message Detail",
+      detail: "Something Went Wrong!",
       life: 3000,
     });
   };
@@ -175,143 +189,141 @@ const Automation = () => {
   };
 
   useEffect(() => {
-    AutomationService.getAutomationResult()
-      .then((data) => {
-        setReportData(data);
-        const reversedReportData = [...data].reverse();
-        const initialDropdownValue =
-          reversedReportData.length > 0 ? reversedReportData[0].testName : "";
-        setDropdownValue(initialDropdownValue);
+    AutomationService.getAutomationResult().then((data) => {
+      setReportData(data);
+      const reversedReportData = [...data].reverse();
+      const initialDropdownValue =
+        reversedReportData.length > 0 ? reversedReportData[0].testName : "";
+      setDropdownValue(initialDropdownValue);
 
-        const documentStyle = getComputedStyle(document.documentElement);
-        const textColor = documentStyle.getPropertyValue("--text-color");
-        const textColorSecondary = documentStyle.getPropertyValue(
-          "--text-color-secondary"
-        );
-        const surfaceBorder =
-          documentStyle.getPropertyValue("--surface-border");
+      const documentStyle = getComputedStyle(document.documentElement);
+      const textColor = documentStyle.getPropertyValue("--text-color");
+      const textColorSecondary = documentStyle.getPropertyValue(
+        "--text-color-secondary"
+      );
+      const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
 
-        const latestExecutionData = data.slice(-1);
-        const pieData = {
-          labels: ["Passed", "Failed", "Pending", "Skipped"],
-          datasets: [
-            {
-              data: [
-                latestExecutionData[0].passes,
-                latestExecutionData[0].failures,
-                latestExecutionData[0].pending,
-                latestExecutionData[0].skipped,
-              ],
-              backgroundColor: [
-                documentStyle.getPropertyValue("--green-500"),
-                documentStyle.getPropertyValue("--red-500"),
-                documentStyle.getPropertyValue("--orange-500"),
-                documentStyle.getPropertyValue("--gray-500"),
-              ],
-              hoverBackgroundColor: [
-                documentStyle.getPropertyValue("--green-400"),
-                documentStyle.getPropertyValue("--red-400"),
-                documentStyle.getPropertyValue("--orange-400"),
-                documentStyle.getPropertyValue("--gray-400"),
-              ],
-            },
-          ],
-        };
+      const latestExecutionData = data.slice(-1);
+      const pieData = {
+        labels: ["Passed", "Failed", "Pending", "Skipped"],
+        datasets: [
+          {
+            data: [
+              latestExecutionData[0].passes,
+              latestExecutionData[0].failures,
+              latestExecutionData[0].pending,
+              latestExecutionData[0].skipped,
+            ],
+            backgroundColor: [
+              documentStyle.getPropertyValue("--green-500"),
+              documentStyle.getPropertyValue("--red-500"),
+              documentStyle.getPropertyValue("--orange-500"),
+              documentStyle.getPropertyValue("--gray-500"),
+            ],
+            hoverBackgroundColor: [
+              documentStyle.getPropertyValue("--green-400"),
+              documentStyle.getPropertyValue("--red-400"),
+              documentStyle.getPropertyValue("--orange-400"),
+              documentStyle.getPropertyValue("--gray-400"),
+            ],
+          },
+        ],
+      };
 
-        const pieOptions = {
-          plugins: {
-            legend: {
-              labels: {
-                usePointStyle: true,
-                color: textColor,
-              },
+      const pieOptions = {
+        plugins: {
+          legend: {
+            labels: {
+              usePointStyle: true,
+              color: textColor,
             },
           },
-        };
+        },
+      };
 
-        const lastFiveExecutionData = data.slice(-5).reverse();
-        const barData = {
-          labels: lastFiveExecutionData.map((report) => report.testName),
-          datasets: [
-            {
-              label: "Pass",
-              backgroundColor: documentStyle.getPropertyValue("--green-500"),
-              borderColor: documentStyle.getPropertyValue("--green-400"),
-              data: lastFiveExecutionData.map((report) => report.passes),
-            },
-            {
-              label: "Fail",
-              backgroundColor: documentStyle.getPropertyValue("--red-500"),
-              borderColor: documentStyle.getPropertyValue("--red-400"),
-              data: lastFiveExecutionData.map((report) => report.failures),
-            },
-            {
-              label: "Pending",
-              backgroundColor: documentStyle.getPropertyValue("--orange-500"),
-              borderColor: documentStyle.getPropertyValue("--orange-400"),
-              data: lastFiveExecutionData.map((report) => report.pending),
-            },
-            {
-              label: "Skip",
-              backgroundColor: documentStyle.getPropertyValue("--gray-500"),
-              borderColor: documentStyle.getPropertyValue("--gray-400"),
-              data: lastFiveExecutionData.map((report) => report.skipped),
-            },
-          ],
-        };
+      const lastFiveExecutionData = data.slice(-5).reverse();
+      const barData = {
+        labels: lastFiveExecutionData.map((report) => report.testName),
+        datasets: [
+          {
+            label: "Pass",
+            backgroundColor: documentStyle.getPropertyValue("--green-500"),
+            borderColor: documentStyle.getPropertyValue("--green-400"),
+            data: lastFiveExecutionData.map((report) => report.passes),
+          },
+          {
+            label: "Fail",
+            backgroundColor: documentStyle.getPropertyValue("--red-500"),
+            borderColor: documentStyle.getPropertyValue("--red-400"),
+            data: lastFiveExecutionData.map((report) => report.failures),
+          },
+          {
+            label: "Pending",
+            backgroundColor: documentStyle.getPropertyValue("--orange-500"),
+            borderColor: documentStyle.getPropertyValue("--orange-400"),
+            data: lastFiveExecutionData.map((report) => report.pending),
+          },
+          {
+            label: "Skip",
+            backgroundColor: documentStyle.getPropertyValue("--gray-500"),
+            borderColor: documentStyle.getPropertyValue("--gray-400"),
+            data: lastFiveExecutionData.map((report) => report.skipped),
+          },
+        ],
+      };
 
-        const barOptions = {
-          indexAxis: "x",
-          elements: {
-            bar: {
-              borderWidth: 1,
+      const barOptions = {
+        indexAxis: "x",
+        elements: {
+          bar: {
+            borderWidth: 1,
+          },
+        },
+        responsive: true,
+        plugins: {
+          legend: {
+            position: "top",
+            labels: {
+              fontColor: textColor,
             },
           },
-          responsive: true,
-          plugins: {
-            legend: {
-              position: "top",
-              labels: {
-                fontColor: textColor,
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: textColorSecondary,
+              font: {
+                weight: 500,
               },
+            },
+            grid: {
+              display: true,
+              drawBorder: true,
             },
           },
-          scales: {
-            x: {
-              ticks: {
-                color: textColorSecondary,
-                font: {
-                  weight: 500,
-                },
-              },
-              grid: {
-                display: true,
-                drawBorder: true,
-              },
+          y: {
+            ticks: {
+              color: textColorSecondary,
             },
-            y: {
-              ticks: {
-                color: textColorSecondary,
-              },
-              grid: {
-                color: surfaceBorder,
-                drawBorder: false,
-              },
+            grid: {
+              color: surfaceBorder,
+              drawBorder: false,
             },
           },
-        };
+        },
+      };
 
-        setChartData({
-          pieData,
-          barData,
-        });
+      setChartData({
+        pieData,
+        barData,
+      });
 
-        setOptions({
-          pieOptions,
-          barOptions,
-        });
-      })
-      .catch((error) => console.error(error));
+      setOptions({
+        pieOptions,
+        barOptions,
+      });
+    });
+    // .catch((error) => console.error(error));
 
     initfilters();
   }, [layoutConfig]);
@@ -414,8 +426,8 @@ const Automation = () => {
   const rowExpansionTemplate = (data) => {
     return (
       <div className="orders-subtable">
-        <Accordion>
-          {data.results.map((testCase, index) => (
+        <Accordion activeIndex={null}>
+          {data.results.slice(first, first + rows).map((testCase, index) => (
             <AccordionTab
               key={index}
               header={
@@ -531,6 +543,12 @@ const Automation = () => {
             </AccordionTab>
           ))}
         </Accordion>
+        <Paginator
+          first={first}
+          rows={rows}
+          totalRecords={data.results.length}
+          onPageChange={onPageChange}
+        />
       </div>
     );
   };
@@ -584,16 +602,116 @@ const Automation = () => {
         >
           <div></div>
           <Toast ref={toast} />
-          <Button
-            aria-label="Show"
-            type="button"
-            className="p-button p-component"
-            onClick={openDialog}
-          >
-            <span className="p-button-icon p-c p-button-icon-left pi pi-external-link"></span>
-            <span className="p-button-label p-c">Trigger Jenkins Job</span>
-          </Button>
+          <div>
+            <Button
+              aria-label="Show"
+              type="button"
+              className="p-button p-component"
+              onClick={openDialog}
+              style={{ marginRight: "10px" }}
+            >
+              <span className="p-button-icon p-c p-button-icon-left pi pi-external-link"></span>
+              <span className="p-button-label p-c">Trigger Jenkins Job</span>
+            </Button>
+
+            <Button
+              aria-label="Show"
+              type="button"
+              className="p-button p-component"
+              onClick={() => {
+                AutomationService.getJenkinsStatus()
+                  .then((data) => {
+                    setJenkinStatusData(data);
+                    setTimeout(() => {
+                      openStatusDialog();
+                    }, 500);
+                  })
+                  // .catch((error) => console.error(error))
+                  .finally(() => {
+                    setLoading(false);
+                  });
+              }}
+            >
+              <span className="p-button-icon p-c p-button-icon-left pi pi-external-link"></span>
+              <span className="p-button-label p-c">Track Job Status</span>
+            </Button>
+          </div>
         </div>
+
+        <Dialog
+          header="Jenkins Running Job Status"
+          visible={dialogOpen}
+          style={{ width: "50vw" }}
+          onHide={closeStatusDialog}
+        >
+          {JenkinStatusData.building ? (
+            <>
+              <p>
+                <span style={{ fontWeight: "bold", marginRight: "8px" }}>
+                  {JenkinStatusData.displayName}
+                </span>
+                : Job is currently running. You can track its progress{" "}
+                <a
+                  href={JenkinStatusData.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      verticalAlign: "middle",
+                    }}
+                  >
+                    <button
+                      style={{
+                        padding: "4px 8px",
+                        fontSize: "14px",
+                        backgroundColor: "#007bff",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor: "pointer",
+                        marginRight: "20px",
+                      }}
+                    >
+                      Track
+                    </button>
+                    <BarLoader color="#428bca" />
+                  </span>
+                </a>
+              </p>
+
+              <p>
+                <span style={{ fontWeight: "bold", marginRight: "8px" }}>
+                  {JenkinStatusData.previousBuild.number}
+                </span>
+                : Track your previous build status, You can track{" "}
+                <a
+                  href={JenkinStatusData.previousBuild.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <button
+                    style={{
+                      padding: "4px 8px",
+                      fontSize: "14px",
+                      backgroundColor: "#007bff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Track
+                  </button>
+                </a>
+              </p>
+            </>
+          ) : (
+            <p>There are no jobs currently running.</p>
+          )}
+        </Dialog>
 
         <Dialog
           header="Trigger Jenkins Jobs"
@@ -914,6 +1032,8 @@ const Automation = () => {
                 value: result.testName,
               }))}
               optionLabel="value"
+              filter
+              filterBy="label,value" // Specify the properties to filter by
               placeholder="Select Test Name"
               style={{ width: "30%" }}
             />

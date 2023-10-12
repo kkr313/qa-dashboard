@@ -7,6 +7,8 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import { ProductService } from "../demo/service/ProductService";
 import { LayoutContext } from "../layout/context/layoutcontext";
 import Link from "next/link";
+import { useRouter } from "next/router";
+
 const lineData = {
   labels: ["January", "February", "March", "April", "May", "June", "July"],
   datasets: [
@@ -118,19 +120,13 @@ const Dashboard = () => {
       currency: "USD",
     });
   };
-
+  const router = useRouter();
   return (
     <div className="centered">
       <div className="card">
-        <p>This page is currently under development</p>
-        <a
-          href="https://qadash.netlify.app/automation"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="button"
-        >
-          Open Automation Dashboard
-        </a>
+        <h3>This page is currently under development</h3>
+        <p>We're working hard to bring you an amazing website.</p>
+        <p>Stay tuned for updates!</p>
       </div>
       <style jsx>{`
         .centered {

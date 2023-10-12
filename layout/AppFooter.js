@@ -6,17 +6,17 @@ const AppFooter = () => {
 
   return (
     <div className="layout-footer">
-      <img
+      {/* <img
         src={`/layout/images/logo-${
           layoutConfig.colorScheme === "light" ? "dark" : "white"
         }.svg`}
         alt="Logo"
         height="20"
         className="mr-2"
-      />
+      /> */}
       {/* <img src={"/layout/images/logo_.png"} alt="Logo" height="30" className="mr-2" /> */}
-      by
-      <span className="font-medium ml-2">Karan Kumar</span>
+
+      <span className="font-medium ml-2">Made with ❤️ - Karan Kumar</span>
     </div>
   );
 };

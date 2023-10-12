@@ -162,6 +162,7 @@
     "json-stable-stringify-without-jsonify": "^1.0.1",
     "json5": "^1.0.2",
     "jsx-ast-utils": "^3.3.3",
+    "keycloak-js": "^22.0.1",
     "language-subtag-registry": "^0.3.22",
     "language-tags": "^1.0.5",
     "levn": "^0.4.1",
@@ -176,8 +177,6 @@
     "mime-types": "^2.1.35",
     "minimatch": "^3.1.2",
     "minimist": "^1.2.8",
-    "mongodb": "^5.6.0",
-    "mongodb-connection-string-url": "^2.6.0",
     "ms": "^2.1.2",
     "nanoid": "^3.3.6",
     "natural-compare": "^1.4.0",
@@ -280,7 +279,7 @@
   },
   "scripts": {
     "dev": "next dev",
-    "build": "next build && next export -o build",
+    "build": "next build && next export",
     "start": "next start",
     "lint": "eslint .",
     "test": "jest"
