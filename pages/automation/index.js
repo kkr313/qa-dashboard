@@ -439,8 +439,8 @@ const Automation = () => {
                     margin: "10px",
                   }}
                 >
-                  Results of '{testCase.file.split("cypress/integration/")[1]}'
-                  →
+                  Results of &apos;
+                  {testCase.file.split("cypress/integration/")[1]}&apos; →
                   <span style={{ fontSize: ".7rem", marginLeft: "5px" }}>
                     <span style={{ color: "black" }}>
                       Total Tests: {testCase.tests.length}
