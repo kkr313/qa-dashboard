@@ -203,16 +203,24 @@ const Automation = () => {
       );
       const surfaceBorder = documentStyle.getPropertyValue("--surface-border");
 
-      const latestExecutionData = data.slice(-1);
+      const latestExecutionData = data.length > 0 ? data.slice(-1)[0] : null;
       const pieData = {
         labels: ["Passed", "Failed", "Pending", "Skipped"],
         datasets: [
           {
             data: [
-              latestExecutionData[0].passes,
-              latestExecutionData[0].failures,
-              latestExecutionData[0].pending,
-              latestExecutionData[0].skipped,
+              latestExecutionData && latestExecutionData.passes !== undefined
+                ? latestExecutionData.passes
+                : 0,
+              latestExecutionData && latestExecutionData.failures !== undefined
+                ? latestExecutionData.failures
+                : 0,
+              latestExecutionData && latestExecutionData.pending !== undefined
+                ? latestExecutionData.pending
+                : 0,
+              latestExecutionData && latestExecutionData.skipped !== undefined
+                ? latestExecutionData.skipped
+                : 0,
             ],
             backgroundColor: [
               documentStyle.getPropertyValue("--green-500"),
